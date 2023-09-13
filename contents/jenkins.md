@@ -56,20 +56,20 @@ jenkins   LoadBalancer   10.100.206.95   k8s-jenkins-jenkins-a378de12d6-21a1d91e
 
 ```bash
 # KV Secrets Engine 활성화
-$ vault secrets enable kv-v2
+$ vault secrets enable -path=jks kv-v2
 ...
-Success! Enabled the kv-v2 secrets engine at: kv-v2/
+Success! Enabled the kv-v2 secrets engine at: jks/
 
 # Secrets 등록
-$ vault kv put kv-v2/aws/s3 object-url=https://songpubket.s3.ap-northeast-2.amazonaws.com/afc6a48cf93e78e27c2f0fd68ab59eb2.png
+$ vault kv put jks/aws/s3 object-url=https://songpubket.s3.ap-northeast-2.amazonaws.com/afc6a48cf93e78e27c2f0fd68ab59eb2.png
 ...
 ==== Secret Path ====
-kv-v2/data/aws/random
+jks/data/aws/random
 …
 
 
 # Secrets 확인
-$ vault kv get kv-v2/aws/s3
+$ vault kv get jks/aws/s3
 ...
 ===== Data =====
 Key       Value
@@ -82,7 +82,7 @@ Key       Value
 ```bash
 # 정책(Policy) 등록
 $ vault policy write jenkinscreds -<<EOF
-path "kv-v2/*" {
+path "jks/*" {
   capabilities = ["read", "list"]
 }
 path "aws/sts/federation" {
@@ -122,7 +122,7 @@ Jenkins 관리 -> *Security*의 Credentials -> (global) 클릭 -> Add Credential
 ```
 def configuration = [vaultUrl: 'http://<Vault 주소>:8200',  vaultCredentialId: ‘<Credential 등록한 ID값>', engineVersion: 2]
 def secrets = [
-  [path: 'kv-v2/aws/s3', engineVersion:2, secretValues: [
+  [path: 'jks/aws/s3', engineVersion:2, secretValues: [
     [envVar: 'url', vaultKey: 'object-url']
   ]]
 ]
